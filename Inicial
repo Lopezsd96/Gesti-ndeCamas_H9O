@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Gestión de Camas Hospitalarias</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    .plant {
+        margin-bottom: 25px;
+    }
+
+    .plant h2 {
+        margin-bottom: 10px;
+    }
+
+    .beds {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 5px;
+    }
+
+    .bed {
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 5px;
+        color: white;
+        font-size: 12px;
+    }
+
+    .disponible { background: #2ecc71; }
+    .ocupada { background: #e74c3c; }
+    .limpieza { background: #f1c40f; color: black; }
+    .aislamiento { background: #9b59b6; }
+</style>
+</head>
+<body>
+
+<h1>Gestión de Camas Hospitalarias</h1>
+
+<div class="stats">
+    <div>Total Camas: <span id="total">224</span></div>
+    <div>Disponibles: <span id="disponibles">0</span></div>
+    <div>Ocupadas: <span id="ocupadas">0</span></div>
+    <div>Limpieza: <span id="limpieza">0</span></div>
+    <div>Aislamiento: <span id="aislamiento">0</span></div>
+</div>
+
+<div id="hospital"></div>
+
+<script>
+const plantas = 7;
+const camasPorPlanta = 32;
+const estados = ["disponible", "ocupada", "limpieza", "aislamiento"];
+
+const hospitalDiv = document.getElementById("hospital");
+
+function crearHospital() {
+    for (let p = 1; p <= plantas; p++) {
+        const plantDiv = document.createElement("div");
+        plantDiv.className = "plant";
+
+        const title = document.createElement("h2");
+        title.textContent = "Planta " + p;
+        plantDiv.appendChild(title);
+
+        const bedsDiv = document.createElement("div");
+        bedsDiv.className = "beds";
+
+        for (let c = 1; c <= camasPorPlanta; c++) {
+            const bed = document.createElement("div");
+            bed.className = "bed disponible";
+            bed.dataset.estado = "disponible";
+            bed.textContent = "P" + p + "-C" + c;
+
+            bed.addEventListener("click", () => cambiarEstado(bed));
+
+            bedsDiv.appendChild(bed);
+        }
+
+        plantDiv.appendChild(bedsDiv);
+        hospitalDiv.appendChild(plantDiv);
+    }
+
+    actualizarContadores();
+}
+
+function cambiarEstado(bed) {
+    let actual = bed.dataset.estado;
+    let index = estados.indexOf(actual);
+    let siguiente = estados[(index + 1) % estados.length];
+
+    bed.classList.remove(actual);
+    bed.classList.add(siguiente);
+    bed.dataset.estado = siguiente;
+
+    actualizarContadores();
+}
+
+function actualizarContadores() {
+    let counts = {
+        disponible: 0,
+        ocupada: 0,
+        limpieza: 0,
+        aislamiento: 0
+    };
+
+    document.querySelectorAll(".bed").forEach(bed => {
+        counts[bed.dataset.estado]++;
+    });
+
+    document.getElementById("disponibles").textContent = counts.disponible;
+    document.getElementById("ocupadas").textContent = counts.ocupada;
+    document.getElementById("limpieza").textContent = counts.limpieza;
+    document.getElementById("aislamiento").textContent = counts.aislamiento;
+}
+
+crearHospital();
+</script>
+
+</body>
+</html>
